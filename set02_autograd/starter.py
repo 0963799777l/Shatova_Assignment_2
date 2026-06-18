@@ -11,28 +11,23 @@ import torch.optim as optim
 
 class SimpleLinearModel(nn.Module):
     """
-    EN: A model with a single linear layer.
-    UA: Модель з одним лінійним шаром.
+     A model with a single linear layer.
     """
     def __init__(self, in_features: int, out_features: int):
         super().__init__()
-        # TODO(EN): create self.linear as nn.Linear(...)
-        # TODO(UA): створіть self.linear як nn.Linear(...)
+        # TODO: create self.linear as nn.Linear(...)
         raise NotImplementedError
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): define forward pass
-        # TODO(UA): визначте прямий прохід
+        # TODO: define forward pass
         raise NotImplementedError
 
 
 def mse_loss_manual(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     """
-    EN: implement mean squared error manually.
-    UA: реалізуйте mean squared error вручну.
+    implement mean squared error manually.
     """
-    # TODO(EN): return ((pred - target) ** 2).mean()
-    # TODO(UA): поверніть ((pred - target) ** 2).mean()
+    # TODO: return ((pred - target) ** 2).mean()
     raise NotImplementedError
 
 
@@ -43,11 +38,9 @@ def train_step(
     y: torch.Tensor,
 ) -> float:
     """
-    EN: perform one SGD step and return the scalar loss as float.
-    UA: виконайте один крок SGD і поверніть скалярну втрату як float.
+    perform one SGD step and return the scalar loss as float.
     """
-    # TODO(EN): zero gradients, forward, compute loss, backward, optimizer step
-    # TODO(UA): обнуліть градієнти, зробіть forward, обчисліть loss, backward, optimizer step
+    # TODO: zero gradients, forward, compute loss, backward, optimizer step
     raise NotImplementedError
 
 
@@ -55,15 +48,13 @@ def fit_regression(steps: int = 200, lr: float = 0.05) -> tuple[nn.Module, list[
     """
     Fit y = 3x - 2 on synthetic data.
 
-    EN: return trained model and loss history.
-    UA: поверніть натреновану модель та історію loss.
+    return trained model and loss history.
     """
     torch.manual_seed(0)
     x = torch.linspace(-2, 2, 100).unsqueeze(1)
     y = 3 * x - 2
 
-    # TODO(EN): create model and optimizer, run training loop
-    # TODO(UA): створіть модель і optimizer, виконайте цикл навчання
+    # TODO: create model and optimizer, run training loop
     raise NotImplementedError
 
 
