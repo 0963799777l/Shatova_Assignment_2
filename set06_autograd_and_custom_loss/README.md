@@ -23,3 +23,29 @@ More advanced PyTorch mechanics:
 - PyTorch autograd basics: https://pytorch.org/docs/stable/autograd.html
 - Custom autograd functions: https://pytorch.org/docs/stable/notes/extending.html
 - BCEWithLogitsLoss: https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html
+
+  ## Опис виконання українською
+
+У цьому завданні реалізовано розширені механізми PyTorch: чисельно стійку функцію втрат, власну autograd-функцію, обчислення норми градієнтів і перевірку градієнтів методом скінченних різниць.
+
+У функції `stable_bce_with_logits` вручну реалізовано чисельно стійку формулу binary cross entropy with logits без використання `torch.nn.functional.binary_cross_entropy_with_logits`.
+
+У класі `SwishFunction` реалізовано власну autograd-функцію для активації Swish за формулою `x * sigmoid(x)`. У методі `forward` обчислюється значення функції та зберігаються потрібні тензори, а в `backward` реалізовано аналітичний градієнт.
+
+У функції `grad_norm` обчислено глобальну L2-норму градієнтів для параметрів, які мають ненульове поле `grad`.
+
+У функції `finite_difference_check` реалізовано наближене обчислення градієнта скалярної функції методом центральних різниць.
+
+Коментарі в коді додано українською мовою біля виконаних частин TODO.## Опис виконання українською
+
+У цьому завданні реалізовано розширені механізми PyTorch: чисельно стійку функцію втрат, власну autograd-функцію, обчислення норми градієнтів і перевірку градієнтів методом скінченних різниць.
+
+У функції `stable_bce_with_logits` вручну реалізовано чисельно стійку формулу binary cross entropy with logits без використання `torch.nn.functional.binary_cross_entropy_with_logits`.
+
+У класі `SwishFunction` реалізовано власну autograd-функцію для активації Swish за формулою `x * sigmoid(x)`. У методі `forward` обчислюється значення функції та зберігаються потрібні тензори, а в `backward` реалізовано аналітичний градієнт.
+
+У функції `grad_norm` обчислено глобальну L2-норму градієнтів для параметрів, які мають ненульове поле `grad`.
+
+У функції `finite_difference_check` реалізовано наближене обчислення градієнта скалярної функції методом центральних різниць.
+
+Коментарі в коді додано українською мовою біля виконаних частин TODO.
