@@ -30,3 +30,22 @@ This set covers the PyTorch basics you should know after the NumPy assignment:
 - Tensor operations: https://pytorch.org/docs/stable/torch.html
 - Broadcasting semantics: https://pytorch.org/docs/stable/notes/broadcasting.html
 - Autograd basics: https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html
+
+## Опис виконання українською
+
+У цьому завданні реалізовано базові операції з тензорами PyTorch.
+
+У функції `make_tensor` створено тензор типу `torch.float32` із заданими значеннями та формою `(2, 3)`.
+
+У функції `row_means` обчислено середнє значення для кожного рядка тензора за допомогою операції редукції `mean`.
+
+У функції `normalize_columns` виконано нормалізацію кожного стовпця за формулою `(x - column_mean) / (column_std + 1e-6)`. Для цього використано broadcasting без циклів Python.
+
+У функції `positive_elements` реалізовано вибір лише додатних елементів тензора за допомогою булевої маски.
+
+У функції `squared_error_loss` обчислено суму квадратів різниць між двома тензорами.
+
+У функції `gradient_wrt_x` використано механізм autograd для обчислення градієнта функції втрат за тензором `x`.
+
+Коментарі в коді додано українською мовою для пояснення основних етапів виконання.
+
