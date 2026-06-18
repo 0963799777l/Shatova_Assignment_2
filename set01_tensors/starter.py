@@ -4,7 +4,6 @@ Run:
     python exercise_set_1.py
 
 Students: complete the TODO sections.
-Студенти: заповніть частини з TODO.
 """
 
 import torch
@@ -17,11 +16,9 @@ def make_tensor() -> torch.Tensor:
      [4, 5, 6]]
 
     EN: create the tensor exactly as specified.
-    UA: створіть тензор точно у вказаному вигляді.
     """
-    # TODO(EN): return the required tensor of dtype torch.float32
-    # TODO(UA): поверніть потрібний тензор з типом torch.float32
-    raise NotImplementedError
+    # Створюємо тензор PyTorch із потрібними значеннями та типом float32.
+    return torch.tensor([[1, 2, 3], [4, 5, 6]], dtype=torch.float32)
 
 
 def row_means(x: torch.Tensor) -> torch.Tensor:
@@ -29,11 +26,10 @@ def row_means(x: torch.Tensor) -> torch.Tensor:
     Return mean of each row.
 
     EN: input shape is (N, M), output shape must be (N,).
-    UA: вхід має форму (N, M), вихід повинен мати форму (N,).
     """
-    # TODO(EN): compute row-wise means
-    # TODO(UA): обчисліть середні значення по рядках
-    raise NotImplementedError
+    # Обчислюємо середнє значення для кожного рядка.
+    # dim=1 означає, що усереднення виконується по стовпцях у межах кожного рядка.
+    return x.mean(dim=1)
 
 
 def normalize_columns(x: torch.Tensor) -> torch.Tensor:
@@ -42,11 +38,18 @@ def normalize_columns(x: torch.Tensor) -> torch.Tensor:
         (x - column_mean) / (column_std + 1e-6)
 
     EN: use broadcasting, do not use Python loops.
-    UA: використайте broadcasting, не використовуйте цикли Python.
     """
-    # TODO(EN): normalize columns with broadcasting
-    # TODO(UA): нормалізуйте стовпці за допомогою broadcasting
-    raise NotImplementedError
+    # Обчислюємо середнє значення для кожного стовпця.
+    # keepdim=True зберігає форму (1, M), щоб broadcasting працював коректно.
+    column_mean = x.mean(dim=0, keepdim=True)
+
+    # Обчислюємо стандартне відхилення для кожного стовпця.
+    # unbiased=False використовується відповідно до тестів.
+    column_std = x.std(dim=0, unbiased=False, keepdim=True)
+
+    # Нормалізуємо кожен стовпець за формулою:
+    # (x - column_mean) / (column_std + 1e-6)
+    return (x - column_mean) / (column_std + 1e-6)
 
 
 def positive_elements(x: torch.Tensor) -> torch.Tensor:
@@ -54,11 +57,9 @@ def positive_elements(x: torch.Tensor) -> torch.Tensor:
     Return a 1D tensor containing only positive elements of x.
 
     EN: use boolean masking.
-    UA: використайте булеву маску.
     """
-    # TODO(EN): filter positive values
-    # TODO(UA): відфільтруйте додатні значення
-    raise NotImplementedError
+    # Створюємо булеву маску x > 0 і вибираємо лише додатні елементи.
+    return x[x > 0]
 
 
 def squared_error_loss(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
@@ -67,11 +68,9 @@ def squared_error_loss(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         sum((x - y)^2)
 
     EN: output must be a scalar tensor.
-    UA: результат повинен бути скалярним тензором.
     """
-    # TODO(EN): implement squared error loss
-    # TODO(UA): реалізуйте квадратичну помилку
-    raise NotImplementedError
+    # Обчислюємо суму квадратів різниць між x та y.
+    return torch.sum((x - y) ** 2)
 
 
 def gradient_wrt_x(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
@@ -79,11 +78,20 @@ def gradient_wrt_x(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     Compute gradient of sum((x - y)^2) with respect to x.
 
     EN: use autograd, not a manual derivative formula.
-    UA: використайте autograd, а не ручну формулу похідної.
     """
-    # TODO(EN): clone x if needed, enable gradients, backprop, return gradient
-    # TODO(UA): за потреби скопіюйте x, увімкніть градієнти, виконайте backprop, поверніть градієнт
-    raise NotImplementedError
+    # Клонуємо x, щоб не змінювати початковий тензор.
+    # detach() від'єднує тензор від попереднього графа обчислень.
+    # requires_grad_(True) вмикає обчислення градієнтів.
+    x_var = x.clone().detach().requires_grad_(True)
+
+    # Обчислюємо скалярну функцію втрат.
+    loss = squared_error_loss(x_var, y)
+
+    # Виконуємо зворотне поширення для обчислення градієнта.
+    loss.backward()
+
+    # Повертаємо градієнт за x.
+    return x_var.grad
 
 
 def _test_make_tensor():
