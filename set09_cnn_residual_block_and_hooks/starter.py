@@ -5,47 +5,83 @@ class ResidualBlock(torch.nn.Module):
     def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
         """
-        EN: Build a residual block with two 3x3 convolutions and ReLU.
-        UA: Побудуйте residual-блок із двома 3x3 згортками та ReLU.
+        Build a residual block with two 3x3 convolutions and ReLU.
         """
-        # TODO(EN): define main path and skip path.
-        # TODO(UA): визначте основний шлях і skip-шлях.
-        raise NotImplementedError
+        # TODO: define main path and skip path.
+        # Створюємо основний шлях із двома згортками 3x3.
+        self.main = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        )
+
+        # Якщо кількість каналів змінюється, використовуємо 1x1 згортку для skip-шляху.
+        if in_channels != out_channels:
+            self.skip = torch.nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        else:
+            self.skip = torch.nn.Identity()
+
+        # Фінальна активація після додавання residual.
+        self.relu = torch.nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): implement residual addition and output activation.
-        # TODO(UA): реалізуйте додавання residual і вихідну активацію.
-        raise NotImplementedError
+        # TODO: implement residual addition and output activation.
+        # Додаємо результат основного шляху та skip-з'єднання.
+        out = self.main(x) + self.skip(x)
+
+        # Застосовуємо ReLU після residual-додавання.
+        return self.relu(out)
 
 
 def global_avg_pool2d(x: torch.Tensor) -> torch.Tensor:
     """
-    EN: Average over H and W. Input: (B, C, H, W), output: (B, C).
-    UA: Усередніть по H і W. Вхід: (B, C, H, W), вихід: (B, C).
+    Average over H and W. Input: (B, C, H, W), output: (B, C).
     """
-    # TODO(EN): implement spatial global average pooling.
-    # TODO(UA): реалізуйте глобальний average pooling по просторових вимірах.
-    raise NotImplementedError
+    # TODO: implement spatial global average pooling.
+    # Усереднюємо тензор по висоті та ширині.
+    return x.mean(dim=(2, 3))
 
 
 def compute_accuracy(logits: torch.Tensor, labels: torch.Tensor) -> float:
     """
-    EN: Compute classification accuracy.
-    UA: Обчисліть accuracy класифікації.
+    Compute classification accuracy.
     """
-    # TODO(EN): return a Python float in [0, 1].
-    # TODO(UA): поверніть Python float у межах [0, 1].
-    raise NotImplementedError
+    # TODO: return a Python float in [0, 1].
+    # Визначаємо передбачений клас як індекс найбільшого логіта.
+    preds = logits.argmax(dim=1)
+
+    # Повертаємо середню частку правильних відповідей.
+    return (preds == labels).float().mean()
 
 
 def capture_activations(model: torch.nn.Module, layer_name: str, x: torch.Tensor) -> torch.Tensor:
     """
-    EN: Run the model once and capture the activation of the named submodule using a forward hook.
-    UA: Один раз запустіть модель і збережіть активацію вказаного підмодуля через forward hook.
+    Run the model once and capture the activation of the named submodule using a forward hook.
     """
-    # TODO(EN): register hook, run forward, remove hook, return captured activation.
-    # TODO(UA): зареєструйте hook, виконайте forward, зніміть hook, поверніть активацію.
-    raise NotImplementedError
+    # TODO: register hook, run forward, remove hook, return captured activation.
+    # Знаходимо потрібний підмодуль за його назвою.
+    modules = dict(model.named_modules())
+    layer = modules[layer_name]
+
+    # Створюємо словник для збереження активації.
+    activations = {}
+
+    # Hook зберігає вихід вказаного шару під час forward.
+    def hook_fn(module, input, output):
+        activations["value"] = output.detach()
+
+    # Реєструємо forward hook.
+    handle = layer.register_forward_hook(hook_fn)
+
+    try:
+        # Запускаємо модель один раз без обчислення градієнтів.
+        with torch.no_grad():
+            model(x)
+    finally:
+        # Видаляємо hook після використання.
+        handle.remove()
+
+    return activations["value"]
 
 
 class TinyCNN(torch.nn.Module):
