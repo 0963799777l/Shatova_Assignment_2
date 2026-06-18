@@ -5,77 +5,118 @@ import torch
 
 def scaled_dot_product_attention(q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask: torch.Tensor | None = None):
     """
-    EN: Implement scaled dot-product attention.
+    Implement scaled dot-product attention.
     Shapes:
         q, k, v: (B, T, D)
         mask: (T, T) or (B, T, T), True where attention is allowed
     Return:
         output: (B, T, D)
         attn: (B, T, T)
-
-    UA: Реалізуйте scaled dot-product attention.
-    Форми:
-        q, k, v: (B, T, D)
-        mask: (T, T) або (B, T, T), True там, де увага дозволена
-    Поверніть:
-        output: (B, T, D)
-        attn: (B, T, T)
     """
-    # TODO(EN): compute scaled attention scores, apply mask, softmax, and weighted sum.
-    # TODO(UA): обчисліть scaled scores, застосуйте mask, softmax і зважену суму.
-    raise NotImplementedError
+    # TODO: compute scaled attention scores, apply mask, softmax, and weighted sum.
+    # Обчислюємо attention scores за формулою QK^T / sqrt(D).
+    d = q.shape[-1]
+    scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(d)
+
+    # Якщо передано mask, заборонені позиції заповнюємо дуже малим значенням.
+    if mask is not None:
+        mask = mask.to(device=scores.device, dtype=torch.bool)
+        scores = scores.masked_fill(~mask, -1e9)
+
+    # Перетворюємо scores на ймовірності уваги.
+    attn = torch.softmax(scores, dim=-1)
+
+    # Обчислюємо зважену суму значень V.
+    output = torch.matmul(attn, v)
+
+    return output, attn
 
 
 def make_causal_mask(seq_len: int) -> torch.Tensor:
     """
-    EN: Return a boolean causal mask of shape (T, T), where position i can attend to <= i.
-    UA: Поверніть булеву causal mask форми (T, T), де позиція i може дивитися лише на <= i.
+    Return a boolean causal mask of shape (T, T), where position i can attend to <= i.
     """
-    # TODO(EN): create a lower-triangular boolean mask.
-    # TODO(UA): створіть нижньотрикутну булеву маску.
-    raise NotImplementedError
+    # TODO: create a lower-triangular boolean mask.
+    # Створюємо нижньотрикутну матрицю, де True дозволяє увагу.
+    return torch.tril(torch.ones(seq_len, seq_len, dtype=torch.bool))
 
 
 class TinyTransformerBlock(torch.nn.Module):
     def __init__(self, d_model: int, d_hidden: int):
         super().__init__()
         """
-        EN: Build a tiny transformer-style block with:
-            - q_proj, k_proj, v_proj
-            - attention
-            - residual + layernorm
-            - feed-forward: Linear -> ReLU -> Linear
-            - residual + layernorm
-        UA: Побудуйте маленький transformer-подібний блок із:
+           Build a tiny transformer-style block with:
             - q_proj, k_proj, v_proj
             - attention
             - residual + layernorm
             - feed-forward: Linear -> ReLU -> Linear
             - residual + layernorm
         """
-        # TODO(EN): define submodules.
-        # TODO(UA): визначте підмодулі.
-        raise NotImplementedError
+        # TODO: define submodules.
+        # Створюємо проєкції для Q, K та V.
+        self.q_proj = torch.nn.Linear(d_model, d_model)
+        self.k_proj = torch.nn.Linear(d_model, d_model)
+        self.v_proj = torch.nn.Linear(d_model, d_model)
+
+        # Створюємо проєкцію після attention.
+        self.out_proj = torch.nn.Linear(d_model, d_model)
+
+        # Створюємо LayerNorm для двох residual-блоків.
+        self.norm1 = torch.nn.LayerNorm(d_model)
+        self.norm2 = torch.nn.LayerNorm(d_model)
+
+        # Створюємо feed-forward блок.
+        self.ff = torch.nn.Sequential(
+            torch.nn.Linear(d_model, d_hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(d_hidden, d_model)
+        )
 
     def forward(self, x: torch.Tensor, mask: torch.Tensor | None = None) -> torch.Tensor:
-        # TODO(EN): implement the transformer block forward pass.
-        # TODO(UA): реалізуйте forward для transformer-блоку.
-        raise NotImplementedError
+        # TODO: implement the transformer block forward pass.
+        # Обчислюємо Q, K та V для attention.
+        q = self.q_proj(x)
+        k = self.k_proj(x)
+        v = self.v_proj(x)
+
+        # Виконуємо scaled dot-product attention.
+        attn_out, _ = scaled_dot_product_attention(q, k, v, mask)
+
+        # Застосовуємо вихідну проєкцію після attention.
+        attn_out = self.out_proj(attn_out)
+
+        # Перший residual connection + layer normalization.
+        x = self.norm1(x + attn_out)
+
+        # Feed-forward блок.
+        ff_out = self.ff(x)
+
+        # Другий residual connection + layer normalization.
+        x = self.norm2(x + ff_out)
+
+        return x
 
 
 def masked_cross_entropy(logits: torch.Tensor, targets: torch.Tensor, ignore_index: int = -100) -> torch.Tensor:
     """
-    EN: Compute token-level cross entropy while ignoring padding positions.
-    logits: (B, T, C)
-    targets: (B, T)
-
-    UA: Обчисліть token-level cross entropy, ігноруючи padding-позиції.
+    Compute token-level cross entropy while ignoring padding positions.
     logits: (B, T, C)
     targets: (B, T)
     """
-    # TODO(EN): flatten batch/time dimensions and call cross_entropy.
-    # TODO(UA): розгорніть batch/time виміри і викличте cross_entropy.
-    raise NotImplementedError
+    # TODO: flatten batch/time dimensions and call cross_entropy.
+    # Розгортаємо logits з форми (B, T, C) у форму (B*T, C).
+    num_classes = logits.shape[-1]
+    logits_flat = logits.reshape(-1, num_classes)
+
+    # Розгортаємо targets з форми (B, T) у форму (B*T).
+    targets_flat = targets.reshape(-1)
+
+    # Обчислюємо cross entropy, ігноруючи padding-позиції.
+    return torch.nn.functional.cross_entropy(
+        logits_flat,
+        targets_flat,
+        ignore_index=ignore_index
+    )
 
 
 class TestAttentionAndTransformer(unittest.TestCase):
