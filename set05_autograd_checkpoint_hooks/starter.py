@@ -16,66 +16,90 @@ class SquarePlusOne(torch.autograd.Function):
     Forward:
         y = x^2 + 1
 
-    EN: implement forward and backward.
-    UA: реалізуйте forward і backward.
+    implement forward and backward.
     """
     @staticmethod
     def forward(ctx, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): save what is needed for backward and return x^2 + 1
-        # TODO(UA): збережіть потрібне для backward і поверніть x^2 + 1
-        raise NotImplementedError
+        # TODO: save what is needed for backward and return x^2 + 1
+        # Зберігаємо x, бо він потрібен для обчислення градієнта у backward.
+        ctx.save_for_backward(x)
+
+        # Повертаємо результат функції y = x^2 + 1.
+        return x ** 2 + 1
 
     @staticmethod
     def backward(ctx, grad_output: torch.Tensor):
-        # TODO(EN): return gradient with respect to x
-        # TODO(UA): поверніть градієнт по x
-        raise NotImplementedError
+        # TODO: return gradient with respect to x
+        # Отримуємо збережений тензор x із forward.
+        (x,) = ctx.saved_tensors
+
+        # Для y = x^2 + 1 похідна дорівнює 2x.
+        grad_x = grad_output * 2 * x
+
+        return grad_x
 
 
 def square_plus_one(x: torch.Tensor) -> torch.Tensor:
-    # TODO(EN): apply the custom autograd function
-    # TODO(UA): застосуйте власну autograd function
-    raise NotImplementedError
+    # TODO: apply the custom autograd function
+    # Застосовуємо власну autograd-функцію до тензора x.
+    return SquarePlusOne.apply(x)
 
 
 def freeze_module(module: nn.Module) -> None:
     """
-    EN: disable gradients for all parameters in the module.
-    UA: вимкніть градієнти для всіх параметрів модуля.
+    disable gradients for all parameters in the module.
     """
-    # TODO(EN): set requires_grad_(False) for all parameters
-    # TODO(UA): встановіть requires_grad_(False) для всіх параметрів
-    raise NotImplementedError
+    # TODO: set requires_grad_(False) for all parameters
+    # Вимикаємо обчислення градієнтів для всіх параметрів модуля.
+    for parameter in module.parameters():
+        parameter.requires_grad_(False)
 
 
 def save_checkpoint(model: nn.Module, path: str) -> None:
     """
-    EN: save model state_dict to path.
-    UA: збережіть state_dict моделі у path.
+    save model state_dict to path.
     """
-    # TODO(EN): use torch.save(...)
-    # TODO(UA): використайте torch.save(...)
-    raise NotImplementedError
+    # TODO: use torch.save(...)
+    # Зберігаємо лише state_dict моделі.
+    torch.save(model.state_dict(), path)
 
 
 def load_checkpoint(model: nn.Module, path: str) -> None:
     """
-    EN: load model state_dict from path.
-    UA: завантажте state_dict моделі з path.
+    load model state_dict from path.
     """
-    # TODO(EN): use torch.load(...) and load_state_dict(...)
-    # TODO(UA): використайте torch.load(...) та load_state_dict(...)
-    raise NotImplementedError
+    # TODO: use torch.load(...) and load_state_dict(...)
+    # Завантажуємо state_dict із файлу.
+    state_dict = torch.load(path)
+
+    # Передаємо завантажені параметри у модель.
+    model.load_state_dict(state_dict)
 
 
 def capture_activation_mean(module: nn.Module, x: torch.Tensor) -> float:
     """
-    EN: register a forward hook, run module(x), capture mean of output activation, remove hook, return mean.
-    UA: зареєструйте forward hook, виконайте module(x), зчитайте середнє значення виходу, зніміть hook, поверніть mean.
+    register a forward hook, run module(x), capture mean of output activation, remove hook, return mean.
     """
-    # TODO(EN): use register_forward_hook
-    # TODO(UA): використайте register_forward_hook
-    raise NotImplementedError
+    # TODO: use register_forward_hook
+    # Створюємо словник для збереження середнього значення активації.
+    activation = {}
+
+    # Hook викликається під час forward і зчитує вихід модуля.
+    def hook_fn(module, input, output):
+        activation["mean"] = output.mean().item()
+
+    # Реєструємо forward hook.
+    handle = module.register_forward_hook(hook_fn)
+
+    try:
+        # Виконуємо forward без обчислення градієнтів.
+        with torch.no_grad():
+            module(x)
+    finally:
+        # Обов'язково видаляємо hook після використання.
+        handle.remove()
+
+    return activation["mean"]
 
 
 def _test_custom_autograd_forward():
