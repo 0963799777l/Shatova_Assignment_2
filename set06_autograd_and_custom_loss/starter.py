@@ -5,8 +5,7 @@ def stable_bce_with_logits(logits: torch.Tensor, targets: torch.Tensor) -> torch
     """
     Compute mean binary cross entropy with logits in a numerically stable way.
 
-    EN: Implement a stable BCE-with-logits formula manually.
-    UA: Реалізуйте чисельно стійку формулу BCE-with-logits вручну.
+    Implement a stable BCE-with-logits formula manually.
     """
     # TODO(EN): return a scalar tensor with the mean loss.
     # TODO(UA): поверніть скалярний тензор із середнім значенням втрат.
@@ -17,21 +16,17 @@ class SwishFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x: torch.Tensor) -> torch.Tensor:
         """
-        EN: Implement Swish: x * sigmoid(x)
-        UA: Реалізуйте Swish: x * sigmoid(x)
+        Implement Swish: x * sigmoid(x)
         """
-        # TODO(EN): compute output and save what is needed for backward.
-        # TODO(UA): обчисліть вихід і збережіть усе необхідне для backward.
+        # TODO: compute output and save what is needed for backward.
         raise NotImplementedError
 
     @staticmethod
     def backward(ctx, grad_output: torch.Tensor):
         """
-        EN: Return gradient with respect to x.
-        UA: Поверніть градієнт відносно x.
+        Return gradient with respect to x.
         """
-        # TODO(EN): implement analytical backward for Swish.
-        # TODO(UA): реалізуйте аналітичний backward для Swish.
+        # TODO: implement analytical backward for Swish.
         raise NotImplementedError
 
 
@@ -41,21 +36,17 @@ def swish(x: torch.Tensor) -> torch.Tensor:
 
 def grad_norm(parameters) -> torch.Tensor:
     """
-    EN: Compute the global L2 norm of gradients over all parameters that have gradients.
-    UA: Обчисліть глобальну L2-норму градієнтів для всіх параметрів, які мають градієнти.
+    Compute the global L2 norm of gradients over all parameters that have gradients.
     """
-    # TODO(EN): ignore parameters with grad is None.
-    # TODO(UA): ігноруйте параметри, у яких grad is None.
+    # TODO: ignore parameters with grad is None.
     raise NotImplementedError
 
 
 def finite_difference_check(f, x: torch.Tensor, eps: float = 1e-4) -> torch.Tensor:
     """
-    EN: Approximate df/dx for a scalar-valued function f using central differences.
-    UA: Наближено обчисліть df/dx для скалярної функції f методом центральних різниць.
+    Approximate df/dx for a scalar-valued function f using central differences.
     """
-    # TODO(EN): return tensor of same shape as x with finite-difference gradient.
-    # TODO(UA): поверніть тензор тієї ж форми, що й x, із градієнтом через скінченні різниці.
+    # TODO: return tensor of same shape as x with finite-difference gradient.
     raise NotImplementedError
 
 
