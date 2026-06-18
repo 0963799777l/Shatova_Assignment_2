@@ -15,60 +15,65 @@ class ToyClassificationDataset(Dataset):
     Synthetic binary classification:
     label = 1 if x0 + x1 > 0 else 0
 
-    EN: store features as float32 and labels as int64 / long.
-    UA: збережіть ознаки як float32, а мітки як int64 / long.
+    store features as float32 and labels as int64 / long.
     """
     def __init__(self, n_samples: int = 100):
         torch.manual_seed(0)
         x = torch.randn(n_samples, 2)
         y = (x[:, 0] + x[:, 1] > 0).long()
 
-        # TODO(EN): save tensors to self.x and self.y
-        # TODO(UA): збережіть тензори в self.x і self.y
-        raise NotImplementedError
+        # TODO: save tensors to self.x and self.y
+        # Зберігаємо ознаки та мітки у змінних об'єкта датасету.
+        self.x = x.float()
+        self.y = y.long()
 
     def __len__(self) -> int:
-        # TODO(EN): return dataset length
-        # TODO(UA): поверніть довжину датасету
-        raise NotImplementedError
+        # TODO: return dataset length
+        # Повертаємо кількість прикладів у датасеті.
+        return len(self.x)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        # TODO(EN): return one sample and one label
-        # TODO(UA): поверніть один приклад і одну мітку
-        raise NotImplementedError
+        # TODO: return one sample and one label
+        # Повертаємо один елемент датасету за індексом.
+        return self.x[idx], self.y[idx]
 
 
 def make_loader(dataset: Dataset, batch_size: int = 16, shuffle: bool = True) -> DataLoader:
-    # TODO(EN): create and return DataLoader
-    # TODO(UA): створіть і поверніть DataLoader
-    raise NotImplementedError
+    # TODO: create and return DataLoader
+    # Створюємо DataLoader для автоматичного формування батчів.
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 
 class SimpleClassifier(nn.Module):
     """
-    EN: a tiny MLP: Linear(2 -> hidden) + ReLU + Linear(hidden -> 2)
-    UA: маленький MLP: Linear(2 -> hidden) + ReLU + Linear(hidden -> 2)
+    a tiny MLP: Linear(2 -> hidden) + ReLU + Linear(hidden -> 2)
     """
     def __init__(self, hidden_dim: int = 8):
         super().__init__()
-        # TODO(EN): define the network
-        # TODO(UA): визначте мережу
-        raise NotImplementedError
+        # TODO: define the network
+        # Створюємо просту нейронну мережу з двома лінійними шарами.
+        self.net = nn.Sequential(
+            nn.Linear(2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 2)
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): return logits
-        # TODO(UA): поверніть логіти
-        raise NotImplementedError
+        # TODO: return logits
+        # Передаємо вхідні дані через мережу та отримуємо логіти.
+        return self.net(x)
 
 
 def accuracy_from_logits(logits: torch.Tensor, y: torch.Tensor) -> float:
     """
-    EN: compute classification accuracy.
-    UA: обчисліть точність класифікації.
+   compute classification accuracy.
     """
-    # TODO(EN): use argmax over class dimension
-    # TODO(UA): використайте argmax по виміру класів
-    raise NotImplementedError
+    # TODO: use argmax over class dimension
+    # Визначаємо передбачений клас як індекс найбільшого логіта.
+    preds = logits.argmax(dim=1)
+
+    # Обчислюємо частку правильних відповідей.
+    return (preds == y).float().mean().item()
 
 
 def train_one_epoch(
@@ -78,12 +83,37 @@ def train_one_epoch(
     criterion: nn.Module,
 ) -> float:
     """
-    EN: train for one epoch, return average loss over batches.
-    UA: натренуйте одну епоху, поверніть середній loss по батчах.
+    train for one epoch, return average loss over batches.
     """
-    # TODO(EN): iterate over loader and perform training
-    # TODO(UA): пройдіться по loader і виконайте навчання
-    raise NotImplementedError
+    # TODO: iterate over loader and perform training
+    # Переводимо модель у режим навчання.
+    model.train()
+
+    total_loss = 0.0
+    num_batches = 0
+
+    # Проходимо по всіх батчах даних.
+    for xb, yb in loader:
+        # Обнуляємо градієнти перед новим кроком навчання.
+        optimizer.zero_grad()
+
+        # Виконуємо прямий прохід моделі.
+        logits = model(xb)
+
+        # Обчислюємо функцію втрат.
+        loss = criterion(logits, yb)
+
+        # Обчислюємо градієнти.
+        loss.backward()
+
+        # Оновлюємо параметри моделі.
+        optimizer.step()
+
+        # Накопичуємо loss для обчислення середнього значення.
+        total_loss += loss.item()
+        num_batches += 1
+
+    return total_loss / num_batches
 
 
 def _test_dataset():
