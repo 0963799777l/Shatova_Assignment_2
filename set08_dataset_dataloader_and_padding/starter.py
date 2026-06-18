@@ -6,61 +6,111 @@ from torch.utils.data import Dataset, DataLoader
 class ToySequenceDataset(Dataset):
     def __init__(self, sequences, targets):
         """
-        EN: Store variable-length sequences and corresponding targets.
-        UA: Збережіть послідовності змінної довжини та відповідні цілі.
+        Store variable-length sequences and corresponding targets.
         """
-        # TODO(EN): store the data.
-        # TODO(UA): збережіть дані.
-        raise NotImplementedError
+        # TODO: store the data.
+        # Зберігаємо послідовності змінної довжини та відповідні цільові значення.
+        self.sequences = sequences
+        self.targets = targets
 
     def __len__(self):
-        # TODO(EN): return dataset length.
-        # TODO(UA): поверніть довжину датасету.
-        raise NotImplementedError
+        # TODO: return dataset length.
+        # Повертаємо кількість послідовностей у датасеті.
+        return len(self.sequences)
 
     def __getitem__(self, idx):
-        # TODO(EN): return (sequence, target).
-        # TODO(UA): поверніть (sequence, target).
-        raise NotImplementedError
+        # TODO: return (sequence, target).
+        # Повертаємо одну послідовність і відповідне їй цільове значення.
+        return self.sequences[idx], self.targets[idx]
 
 
 def pad_collate(batch):
     """
-    EN: Collate a batch of variable-length sequences.
+    Collate a batch of variable-length sequences.
     Return:
         padded_x: (B, T, D)
         mask: (B, T) boolean, True where data is valid
         y: (B, ...)
-
-    UA: Зберіть batch зі змінною довжиною послідовностей.
-    Поверніть:
-        padded_x: (B, T, D)
-        mask: (B, T) boolean, True там, де дані валідні
-        y: (B, ...)
     """
-    # TODO(EN): pad sequences to the max length in the batch.
-    # TODO(UA): доповніть послідовності до максимальної довжини в batch.
-    raise NotImplementedError
+    # TODO: pad sequences to the max length in the batch.
+    # Розділяємо batch на послідовності та цільові значення.
+    sequences, targets = zip(*batch)
+
+    # Визначаємо розмір batch, максимальну довжину послідовності та кількість ознак.
+    batch_size = len(sequences)
+    max_len = max(seq.shape[0] for seq in sequences)
+    feature_dim = sequences[0].shape[1]
+
+    # Створюємо тензор із нулями для доповнених послідовностей.
+    padded_x = torch.zeros(batch_size, max_len, feature_dim, dtype=sequences[0].dtype)
+
+    # Створюємо булеву маску, де True відповідає реальним елементам послідовності.
+    mask = torch.zeros(batch_size, max_len, dtype=torch.bool)
+
+    # Заповнюємо padded_x реальними значеннями послідовностей.
+    for i, seq in enumerate(sequences):
+        length = seq.shape[0]
+        padded_x[i, :length] = seq
+        mask[i, :length] = True
+
+    # Об'єднуємо цільові значення в один тензор.
+    y = torch.stack(targets, dim=0)
+
+    return padded_x, mask, y
 
 
 def masked_mean(x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     """
-    EN: Compute mean over time dimension using the mask.
-    UA: Обчисліть середнє по часовому виміру з використанням mask.
+    Compute mean over time dimension using the mask.
     """
-    # TODO(EN): output shape should be (B, D).
-    # TODO(UA): форма виходу має бути (B, D).
-    raise NotImplementedError
+    # TODO: output shape should be (B, D).
+    # Додаємо останній вимір до mask, щоб її можна було застосувати до x.
+    mask_expanded = mask.unsqueeze(-1)
+
+    # Обнуляємо padded-елементи, які не є валідними.
+    masked_x = x * mask_expanded
+
+    # Сумуємо тільки валідні елементи по часовому виміру.
+    summed = masked_x.sum(dim=1)
+
+    # Рахуємо кількість валідних елементів у кожній послідовності.
+    counts = mask_expanded.sum(dim=1).clamp(min=1)
+
+    # Ділимо суму на кількість валідних елементів.
+    return summed / counts
 
 
 def sequence_regression_step(model, optimizer, batch) -> float:
     """
-    EN: One training step for sequence regression with masked mean pooling.
-    UA: Один крок навчання для регресії по послідовностях із masked mean pooling.
+    One training step for sequence regression with masked mean pooling.
     """
-    # TODO(EN): compute pooled features, predict, loss, backward, step.
-    # TODO(UA): обчисліть pooled-ознаки, прогноз, loss, backward, step.
-    raise NotImplementedError
+    # TODO: compute pooled features, predict, loss, backward, step.
+    # Розпаковуємо batch.
+    x, mask, y = batch
+
+    # Переводимо модель у режим навчання.
+    model.train()
+
+    # Обнуляємо попередні градієнти.
+    optimizer.zero_grad()
+
+    # Отримуємо pooled-ознаки через masked mean.
+    pooled = masked_mean(x, mask)
+
+    # Виконуємо прогноз моделі.
+    pred = model(pooled)
+
+    # Обчислюємо MSE loss для регресії.
+    loss = torch.nn.functional.mse_loss(pred, y)
+
+    # Обчислюємо градієнти.
+    loss.backward()
+
+    # Оновлюємо параметри моделі.
+    optimizer.step()
+
+    # Повертаємо loss як звичайне число Python.
+    return loss.item()
 
 
 class TestDatasetAndPadding(unittest.TestCase):
