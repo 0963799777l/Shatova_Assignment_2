@@ -14,44 +14,36 @@ class SmallCNN(nn.Module):
     Input: (N, 1, 8, 8)
     Output: logits for 2 classes
 
-    EN: build a small CNN with conv, relu, pool, flatten, linear.
-    UA: побудуйте маленьку CNN з conv, relu, pool, flatten, linear.
+    build a small CNN with conv, relu, pool, flatten, linear
     """
     def __init__(self):
         super().__init__()
-        # TODO(EN): define feature extractor and classifier
-        # TODO(UA): визначте feature extractor і classifier
+        # TODO: define feature extractor and classifier
         raise NotImplementedError
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): implement forward pass
-        # TODO(UA): реалізуйте прямий прохід
+        # TODO: implement forward pass
         raise NotImplementedError
 
 
 def count_parameters(model: nn.Module) -> int:
     """
-    EN: count trainable parameters only.
-    UA: порахуйте лише trainable параметри.
+    count trainable parameters only.
     """
-    # TODO(EN): sum numel() for parameters with requires_grad=True
-    # TODO(UA): просумуйте numel() лише для параметрів з requires_grad=True
+    # TODO: sum numel() for parameters with requires_grad=True
     raise NotImplementedError
 
 
 def predict_classes(model: nn.Module, x: torch.Tensor) -> torch.Tensor:
     """
-    EN: run inference in eval mode without tracking gradients.
-    UA: виконайте inference у режимі eval без відстеження градієнтів.
+    run inference in eval mode without tracking gradients.
     """
-    # TODO(EN): switch to eval, use torch.no_grad, return predicted class indices
-    # TODO(UA): перейдіть у eval, використайте torch.no_grad, поверніть індекси класів
+    # TODO: switch to eval, use torch.no_grad, return predicted class indices
     raise NotImplementedError
 
 
 def compute_batch_accuracy(logits: torch.Tensor, y: torch.Tensor) -> float:
-    # TODO(EN): compute batch accuracy
-    # TODO(UA): обчисліть точність батча
+    # TODO: compute batch accuracy
     raise NotImplementedError
 
 
@@ -74,16 +66,14 @@ def make_synthetic_images(n: int = 128) -> tuple[torch.Tensor, torch.Tensor]:
 
 def train_cnn_steps(steps: int = 40, lr: float = 0.1) -> tuple[nn.Module, list[float]]:
     """
-    EN: train on the synthetic image task and return model + loss history.
-    UA: натренуйте модель на синтетичному наборі зображень і поверніть модель + історію loss.
+    train on the synthetic image task and return model + loss history.
     """
     x, y = make_synthetic_images(128)
     model = SmallCNN()
     optimizer = optim.SGD(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
 
-    # TODO(EN): implement short full-batch training loop
-    # TODO(UA): реалізуйте короткий full-batch цикл навчання
+    # TODO: implement short full-batch training loop
     raise NotImplementedError
 
 
