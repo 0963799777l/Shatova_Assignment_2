@@ -15,7 +15,7 @@ def make_tensor() -> torch.Tensor:
     [[1, 2, 3],
      [4, 5, 6]]
 
-    EN: create the tensor exactly as specified.
+    create the tensor exactly as specified.
     """
     # Створюємо тензор PyTorch із потрібними значеннями та типом float32.
     return torch.tensor([[1, 2, 3], [4, 5, 6]], dtype=torch.float32)
@@ -25,7 +25,7 @@ def row_means(x: torch.Tensor) -> torch.Tensor:
     """
     Return mean of each row.
 
-    EN: input shape is (N, M), output shape must be (N,).
+    input shape is (N, M), output shape must be (N,).
     """
     # Обчислюємо середнє значення для кожного рядка.
     # dim=1 означає, що усереднення виконується по стовпцях у межах кожного рядка.
@@ -37,7 +37,7 @@ def normalize_columns(x: torch.Tensor) -> torch.Tensor:
     Normalize each column:
         (x - column_mean) / (column_std + 1e-6)
 
-    EN: use broadcasting, do not use Python loops.
+    use broadcasting, do not use Python loops.
     """
     # Обчислюємо середнє значення для кожного стовпця.
     # keepdim=True зберігає форму (1, M), щоб broadcasting працював коректно.
@@ -56,7 +56,7 @@ def positive_elements(x: torch.Tensor) -> torch.Tensor:
     """
     Return a 1D tensor containing only positive elements of x.
 
-    EN: use boolean masking.
+    use boolean masking.
     """
     # Створюємо булеву маску x > 0 і вибираємо лише додатні елементи.
     return x[x > 0]
@@ -67,7 +67,7 @@ def squared_error_loss(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     Return sum of squared differences:
         sum((x - y)^2)
 
-    EN: output must be a scalar tensor.
+    output must be a scalar tensor.
     """
     # Обчислюємо суму квадратів різниць між x та y.
     return torch.sum((x - y) ** 2)
@@ -77,7 +77,7 @@ def gradient_wrt_x(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """
     Compute gradient of sum((x - y)^2) with respect to x.
 
-    EN: use autograd, not a manual derivative formula.
+    use autograd, not a manual derivative formula.
     """
     # Клонуємо x, щоб не змінювати початковий тензор.
     # detach() від'єднує тензор від попереднього графа обчислень.
