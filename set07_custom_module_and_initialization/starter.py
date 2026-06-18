@@ -5,57 +5,82 @@ class MLPBlock(torch.nn.Module):
     def __init__(self, in_features: int, hidden_features: int, out_features: int, dropout_p: float = 0.0):
         super().__init__()
         """
-        EN: Build a small MLP block: Linear -> ReLU -> Dropout -> Linear.
-        UA: Побудуйте невеликий MLP-блок: Linear -> ReLU -> Dropout -> Linear.
+        Build a small MLP block: Linear -> ReLU -> Dropout -> Linear.
         """
-        # TODO(EN): define layers.
-        # TODO(UA): визначте шари.
-        raise NotImplementedError
+        # TODO: define layers.
+        # Створюємо послідовність шарів MLP-блоку.
+        self.net = torch.nn.Sequential(
+            torch.nn.Linear(in_features, hidden_features),
+            torch.nn.ReLU(),
+            torch.nn.Dropout(p=dropout_p),
+            torch.nn.Linear(hidden_features, out_features)
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # TODO(EN): implement the forward pass.
-        # TODO(UA): реалізуйте прямий прохід.
-        raise NotImplementedError
+        # TODO: implement the forward pass.
+        # Передаємо вхідний тензор через усі шари моделі.
+        return self.net(x)
 
 
 def count_trainable_parameters(model: torch.nn.Module) -> int:
     """
-    EN: Count parameters with requires_grad=True.
-    UA: Порахуйте параметри, для яких requires_grad=True.
+    Count parameters with requires_grad=True.
     """
-    # TODO(EN): return an integer.
-    # TODO(UA): поверніть ціле число.
-    raise NotImplementedError
+    # TODO: return an integer.
+    # Рахуємо тільки параметри, які беруть участь у навчанні.
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 def xavier_init_(module: torch.nn.Module) -> None:
     """
-    EN: Apply Xavier uniform initialization to all Linear layers and zero their biases.
-    UA: Застосуйте Xavier uniform ініціалізацію до всіх Linear-шарів і занульте їх bias.
+    Apply Xavier uniform initialization to all Linear layers and zero their biases.
     """
-    # TODO(EN): modify the module in-place.
-    # TODO(UA): змініть модуль in-place.
-    raise NotImplementedError
+    # TODO: modify the module in-place.
+    # Проходимо по всіх шарах модуля і застосовуємо ініціалізацію до Linear-шарів.
+    for m in module.modules():
+        if isinstance(m, torch.nn.Linear):
+            torch.nn.init.xavier_uniform_(m.weight)
+
+            # Занулюємо bias, якщо він існує.
+            if m.bias is not None:
+                torch.nn.init.zeros_(m.bias)
 
 
 def set_requires_grad(module: torch.nn.Module, value: bool) -> None:
     """
-    EN: Set requires_grad for all parameters in a module.
-    UA: Встановіть requires_grad для всіх параметрів модуля.
+    Set requires_grad for all parameters in a module.
     """
-    # TODO(EN): implement this utility.
-    # TODO(UA): реалізуйте цю утиліту.
-    raise NotImplementedError
+    # TODO: implement this utility.
+    # Встановлюємо requires_grad для всіх параметрів модуля.
+    for p in module.parameters():
+        p.requires_grad_(value)
 
 
 def train_step(model, optimizer, criterion, x, y) -> float:
     """
-    EN: Do one training step and return the scalar loss as a Python float.
-    UA: Виконайте один крок навчання і поверніть скалярне значення loss як Python float.
+    Do one training step and return the scalar loss as a Python float.
     """
-    # TODO(EN): zero grads, forward, compute loss, backward, step.
-    # TODO(UA): обнуліть градієнти, зробіть forward, обчисліть loss, backward, step.
-    raise NotImplementedError
+    # TODO: zero grads, forward, compute loss, backward, step.
+    # Переводимо модель у режим навчання.
+    model.train()
+
+    # Обнуляємо попередні градієнти.
+    optimizer.zero_grad()
+
+    # Виконуємо прямий прохід.
+    pred = model(x)
+
+    # Обчислюємо функцію втрат.
+    loss = criterion(pred, y)
+
+    # Обчислюємо градієнти.
+    loss.backward()
+
+    # Оновлюємо параметри моделі.
+    optimizer.step()
+
+    # Повертаємо loss як звичайне число Python.
+    return loss.item()
 
 
 def test_forward_shape():
